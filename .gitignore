@@ -1,1 +1,6 @@
+# PHPStorm Files
 .idea
+
+# Certificates
+*.pem
+*.key

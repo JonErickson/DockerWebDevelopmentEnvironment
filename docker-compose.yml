@@ -11,11 +11,11 @@ services:
     tty: true
     working_dir: /var/www/html
     volumes:
-      - webdata:/var/www/html
+      - ./projects:/var/www/html
     networks:
-      - app-network
+      - web-network
 
-  # Web Server
+  # Nginx
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -25,10 +25,22 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - webdata:/var/www/html
-      - ./nginx/conf.d/app.conf:/etc/nginx/conf.d/app.conf
+      - ./projects:/var/www/html
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - app-network
+      - web-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  # Certbot
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   # MySQL
   mysql:
@@ -44,13 +56,13 @@ services:
       retries: 10
     environment:
       MYSQL_DATABASE: system
-      MYSQL_USER: root
+      MYSQL_USER: mysqluser
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - dbdata:/var/lib/mysql
     networks:
-      - app-network
+      - web-network
 
   # Redis
   redis:
@@ -66,11 +78,11 @@ services:
       timeout: 3s
       retries: 30
     networks:
-      - app-network
+      - web-network
 
 # Docker Network
 networks:
-  app-network:
+  web-network:
     driver: bridge
 
 # Volumes
