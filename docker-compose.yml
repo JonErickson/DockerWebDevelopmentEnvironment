@@ -3,6 +3,7 @@ services:
 
   # PHP
   php:
+    image: dockerwebdevelopmentenv:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -55,12 +56,29 @@ services:
       timeout: 20s
       retries: 10
     environment:
-      MYSQL_DATABASE: system
-      MYSQL_USER: mysqluser
-      MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - dbdata:/var/lib/mysql
+    networks:
+      - web-network
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    tty: true
+    depends_on:
+      - mysql
+    ports:
+      - "8080:80"
+    environment:
+      PMA_ABSOLUTE_URI: https://localhost/phpmyadmin/
+      PMA_ARBITRARY: 1
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: password
     networks:
       - web-network
 
@@ -89,7 +107,4 @@ networks:
 volumes:
   dbdata:
     name: docker_web_development_db_data
-    driver: local
-  webdata:
-    name: docker_web_development_web_data
     driver: local

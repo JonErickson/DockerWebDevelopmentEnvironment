@@ -1,6 +1,4 @@
-<?php
+<?php echo "<h1>Web Development Environment</h1>"; ?>
 
-echo "<h1>Deschutes Design Group LLC Development Environment</h1>";
 
-?>
 

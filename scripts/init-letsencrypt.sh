@@ -7,7 +7,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
 fi
 
 # Configuration
-domains=(dev.deschutesdesigngroup.com)
+domains=(localhost)
 rsa_key_size=4096
 data_path="./certbot"
 email="info@deschutesdesigngroup.com" # Adding a valid address is strongly recommended
